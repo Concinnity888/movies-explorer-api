@@ -81,8 +81,3 @@ module.exports = {
   createMovie,
   deleteMovie,
 };
-
-
-
-
-

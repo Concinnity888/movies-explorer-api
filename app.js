@@ -8,6 +8,7 @@ const { routes } = require('./routes');
 const { limiter } = require('./utils/limiter');
 
 const { PORT = 3000, NODE_ENV, DB_NAME } = process.env;
+const { DEFAULT_DB_NAME } = require('./utils/config');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
