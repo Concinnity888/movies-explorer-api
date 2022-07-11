@@ -4,7 +4,7 @@
 
 Публичный IPv4 сервера: 51.250.100.134
 
-Доменное имя сервера: []()
+Доменное имя сервера: [http://api.movies-36.nomoredomains.xyz](http://api.movies-36.nomoredomains.xyz)
 
 ## Директории
 
