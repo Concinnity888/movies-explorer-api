@@ -4,7 +4,6 @@ const User = require('../models/user');
 const { getToken } = require('../utils/jwt');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
-const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
@@ -23,6 +22,7 @@ const login = async (req, res, next) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       next(new UnauthorizedError('Неправильные логин или пароль'));
+      return;
     }
 
     const token = await getToken(user._id);
@@ -45,13 +45,7 @@ const getUser = async (req, res, next) => {
     }
     res.status(200).send(user);
   } catch (err) {
-    if (err.kind === 'ObjectId') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else if (err.name === 'ValidationError') {
-      next(new ValidationError('Переданы некорректные данные'));
-    } else {
-      next(err);
-    }
+    next(err);
   }
 };
 
@@ -94,20 +88,24 @@ const createUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const { name, email } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      { name, email },
-      { new: true, runValidators: true },
-    );
-    if (!user) {
-      next(new NotFoundError('Пользователь с указанным _id не найден'));
+    const result = await User.find({ email });
+    if (result.length <= 1) {
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { name, email },
+        { new: true, runValidators: true },
+      );
+      if (!user) {
+        next(new NotFoundError('Пользователь с указанным _id не найден'));
+        return;
+      }
+      res.status(200).send(user);
+    } else {
+      next(new ConflictError('Пользователь уже существует'));
       return;
     }
-    res.status(200).send(user);
   } catch (err) {
-    if (err.kind === 'ObjectId') {
-      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-    } else if (err.name === 'ValidationError') {
+    if (err.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
     } else {
       next(err);

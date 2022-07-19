@@ -62,7 +62,7 @@ const deleteMovie = async (req, res, next) => {
 
     const movieOwner = movie.owner.toString().replace('new ObjectId("', '');
     if (req.user.id === movieOwner) {
-      const currentMovie = await Movie.findByIdAndRemove(req.params.cardId);
+      const currentMovie = await Movie.findByIdAndRemove(req.params.movieId);
       res.status(200).send(currentMovie);
     } else {
       next(new ForbiddenError('Нет доступа'));
